@@ -5,3 +5,4 @@ services:
     env_file: .env
     ports:
       - "${PORT}:${PORT}"
+    network_mode: host
