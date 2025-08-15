@@ -4,14 +4,18 @@ import (
 	"any/bookingtogo-service/internal/domain"
 	"any/bookingtogo-service/internal/service"
 	"any/bookingtogo-service/src/pkg"
+	"any/bookingtogo-service/src/redis"
 	"net/http"
 	"strconv"
 
 	"github.com/gorilla/mux"
+	"gorm.io/gorm"
 )
 
 type CustomerHandlerImpl struct {
 	service service.CustomerService
+	DB      *gorm.DB
+	Redis   *redis.RedisClient
 }
 
 type CustomerHandler interface {
@@ -22,8 +26,8 @@ type CustomerHandler interface {
 	ListCustomersByNationality(w http.ResponseWriter, r *http.Request)
 }
 
-func NewCustomerHandler(service service.CustomerService) CustomerHandler {
-	return &CustomerHandlerImpl{service: service}
+func NewCustomerHandler(cfg GlobalConfig) CustomerHandler {
+	return &CustomerHandlerImpl{service: cfg.ServiceCustomer(), Redis: cfg.GetConnectionRedis(), DB: cfg.GetConnectionDB()}
 }
 
 func (c *CustomerHandlerImpl) CreateCustomer(w http.ResponseWriter, r *http.Request) {

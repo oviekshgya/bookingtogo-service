@@ -8,11 +8,13 @@ import (
 	"strconv"
 
 	"github.com/gorilla/mux"
+	"gorm.io/gorm"
 )
 
 type NasionalityHandlerImpl struct {
 	service service.NasionalityService
 	Redis   *redis.RedisClient
+	DB      *gorm.DB
 }
 
 type NasionalityHandler interface {
@@ -20,8 +22,8 @@ type NasionalityHandler interface {
 	GetAllNasionalities(w http.ResponseWriter, r *http.Request)
 }
 
-func NewNasionalityHandler(service service.NasionalityService, rds *redis.RedisClient) NasionalityHandler {
-	return &NasionalityHandlerImpl{service: service, Redis: rds}
+func NewNasionalityHandler(cfg GlobalConfig) NasionalityHandler {
+	return &NasionalityHandlerImpl{service: cfg.ServiceNas(), Redis: cfg.GetConnectionRedis(), DB: cfg.GetConnectionDB()}
 }
 
 // GET BY ID

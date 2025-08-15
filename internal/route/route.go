@@ -34,11 +34,18 @@ func CustomerRouter(r *mux.Router, c handler.CustomerHandler) {
 }
 
 func NasionalityRouter(r *mux.Router, c handler.NasionalityHandler) {
-	cache := middleware.Cache(c.(*handler.NasionalityHandlerImpl).Redis)
+	//Gunakan logging disini amibl db nya dari handler
+	log := middleware.Log(GlobalCfg.GetConnectionDB())
+	r.Use(log)
+	cache := middleware.Cache(GlobalCfg.GetConnectionRedis())
 	r.Handle("/{id}", cache(http.HandlerFunc(c.GetNasionalityByID))).Methods(http.MethodGet)
 	r.Handle("/", cache(http.HandlerFunc(c.GetAllNasionalities))).Methods(http.MethodGet)
-	//r.HandleFunc("/{id}", c.GetNasionalityByID).Methods(http.MethodGet)
-	//r.HandleFunc("/", c.GetAllNasionalities).Methods(http.MethodGet)
+}
+
+var GlobalCfg handler.GlobalConfig
+
+func init() {
+	GlobalCfg, _ = src.InitializeGlobalConfig()
 }
 
 func AppRoutes(r *mux.Router) {
@@ -53,11 +60,9 @@ func AppRoutes(r *mux.Router) {
 		})
 	}).Methods(http.MethodGet)
 
-	customer, _ := src.InitializeCustomerController()
-	CustomerRouter(r.PathPrefix("/customer").Subrouter(), customer)
+	CustomerRouter(r.PathPrefix("/customer").Subrouter(), handler.NewCustomerHandler(GlobalCfg))
 
-	nasionality, _ := src.InitializeNasionalityController()
-	NasionalityRouter(r.PathPrefix("/nasionality").Subrouter(), nasionality)
+	NasionalityRouter(r.PathPrefix("/nasionality").Subrouter(), handler.NewNasionalityHandler(GlobalCfg))
 
 	fmt.Println("Server running on :" + viper.GetString("SERVICE_PORT"))
 }

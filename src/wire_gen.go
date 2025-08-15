@@ -16,20 +16,13 @@ import (
 
 // Injectors from injector.go:
 
-func InitializeNasionalityController() (handler.NasionalityHandler, error) {
-	gormDB := db.GetDB()
-	redisClient := redis.NewRedisClient()
-	nasionalityRepository := repository.NewNasionalityRepository()
-	nasionalityService := service.NewNasionalityService(gormDB, redisClient, nasionalityRepository)
-	nasionalityHandler := handler.NewNasionalityHandler(nasionalityService, redisClient)
-	return nasionalityHandler, nil
-}
-
-func InitializeCustomerController() (handler.CustomerHandler, error) {
+func InitializeGlobalConfig() (handler.GlobalConfig, error) {
 	gormDB := db.GetDB()
 	redisClient := redis.NewRedisClient()
 	customerRepository := repository.NewUserRepository()
 	customerService := service.NewCustomerService(gormDB, redisClient, customerRepository)
-	customerHandler := handler.NewCustomerHandler(customerService)
-	return customerHandler, nil
+	nasionalityRepository := repository.NewNasionalityRepository()
+	nasionalityService := service.NewNasionalityService(gormDB, redisClient, nasionalityRepository)
+	globalConfig := handler.NewGlobalHandler(gormDB, redisClient, customerService, nasionalityService, customerRepository, nasionalityRepository)
+	return globalConfig, nil
 }
