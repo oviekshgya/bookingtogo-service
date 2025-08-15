@@ -1,13 +1,11 @@
 package domain
 
-import "time"
-
 const CUSTOMER = "customer"
 
 type Customer struct {
 	ID            int         `gorm:"primaryKey;autoIncrement;column:cat_id"`
 	Name          string      `gorm:"size:50;not null;column:cat_name" json:"name"`
-	DOB           time.Time   `gorm:"not null;column:cat_dob"`
+	DOB           string      `gorm:"not null;column:cat_dob" json:"DOB"`
 	PhoneNumber   string      `gorm:"size:20;not null;column:cat_phoneNum" json:"phoneNumber"`
 	Email         string      `gorm:"size:50;not null;column:cat_email" json:"email"`
 	NationalityID int         `gorm:"not null;column:nationality_id" json:"nationalityId"`

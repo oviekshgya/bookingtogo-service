@@ -5,6 +5,7 @@ import (
 	"any/bookingtogo-service/internal/service"
 	"any/bookingtogo-service/src/pkg"
 	"any/bookingtogo-service/src/redis"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -38,7 +39,7 @@ func (c *CustomerHandlerImpl) CreateCustomer(w http.ResponseWriter, r *http.Requ
 	if errParse != nil {
 		_ = res.ReplyCustom(http.StatusMethodNotAllowed, map[string]interface{}{
 			"status":  "error",
-			"message": "invalid request",
+			"message": fmt.Sprintf("error: %s your input: %d", errParse.Error(), pReq.NationalityID),
 		})
 		return
 	}
