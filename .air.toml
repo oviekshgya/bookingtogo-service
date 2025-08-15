@@ -1,0 +1,22 @@
+# .air.toml - Auto reload setup untuk project Go dengan main di cmd/main.go
+root = "."
+tmp_dir = "tmp"
+
+[build]
+cmd = "go build -o tmp/main.exe ./cmd"
+bin = "tmp/main.exe"
+include_ext = ["go", "tpl", "tmpl", "html"]
+exclude_dir = ["assets", "tmp", "vendor"]
+
+
+[color]
+main = "yellow"
+watcher = "cyan"
+
+[log]
+time = true
+level = "info"
+
+[server]
+# Restart server otomatis setelah build
+restart = true
