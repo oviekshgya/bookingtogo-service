@@ -61,6 +61,10 @@ func (c *CustomerHandlerImpl) UpdateCustomer(w http.ResponseWriter, r *http.Requ
 		})
 		return
 	}
+	vars := mux.Vars(r)
+	idStr := vars["id"]
+	id, err := strconv.Atoi(idStr)
+	pReq.ID = id
 
 	result, err := c.service.Update(&pReq)
 	if err != nil {

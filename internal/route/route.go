@@ -27,17 +27,18 @@ func corsMiddleware(next http.Handler) http.Handler {
 func CustomerRouter(r *mux.Router, c handler.CustomerHandler) {
 	r.HandleFunc("/", c.CreateCustomer).Methods(http.MethodPost)
 	r.HandleFunc("/", c.UpdateCustomer).Methods(http.MethodPut)
-	r.HandleFunc("/:id", c.GetCustomerByID).Methods(http.MethodGet)
+	r.HandleFunc("/{id}", c.GetCustomerByID).Methods(http.MethodGet)
 	r.HandleFunc("/", c.ListCustomersByNationality).Methods(http.MethodGet)
-	r.HandleFunc("/", c.DeleteCustomer).Methods(http.MethodDelete)
+	r.HandleFunc("/{id}", c.DeleteCustomer).Methods(http.MethodDelete)
 }
 
 func NasionalityRouter(r *mux.Router, c handler.NasionalityHandler) {
-	r.HandleFunc("/:id", c.GetNasionalityByID).Methods(http.MethodGet)
+	r.HandleFunc("/{id}", c.GetNasionalityByID).Methods(http.MethodGet)
 	r.HandleFunc("/", c.GetAllNasionalities).Methods(http.MethodGet)
 }
 
 func AppRoutes(r *mux.Router) {
+	r.StrictSlash(true)
 	r.Use(corsMiddleware)
 
 	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
