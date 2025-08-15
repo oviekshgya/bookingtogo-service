@@ -15,6 +15,8 @@ type GlobalConfig interface {
 	ServiceNas() service.NasionalityService
 	RepositoryCustomer() repository.CustomerRepository
 	RepositoryNas() repository.NasionalityRepository
+	LogService() service.RequestLogService
+	LogRepositorys() repository.RequestLogRepository
 }
 
 type GlobalHandlerImpl struct {
@@ -24,9 +26,11 @@ type GlobalHandlerImpl struct {
 	NasionalityRepo repository.NasionalityRepository
 	CustomerRepo    repository.CustomerRepository
 	ServiceNasi     service.NasionalityService
+	LogSerrvice     service.RequestLogService
+	LogRepository   repository.RequestLogRepository
 }
 
-func NewGlobalHandler(db *gorm.DB, rdis *redis.RedisClient, serviceCus service.CustomerService, serviceNas service.NasionalityService, repoCust repository.CustomerRepository, repoNAs repository.NasionalityRepository) GlobalConfig {
+func NewGlobalHandler(db *gorm.DB, rdis *redis.RedisClient, serviceCus service.CustomerService, serviceNas service.NasionalityService, repoCust repository.CustomerRepository, repoNAs repository.NasionalityRepository, lg service.RequestLogService, lgRp repository.RequestLogRepository) GlobalConfig {
 	return &GlobalHandlerImpl{
 		DB:              db,
 		Redis:           rdis,
@@ -34,6 +38,8 @@ func NewGlobalHandler(db *gorm.DB, rdis *redis.RedisClient, serviceCus service.C
 		NasionalityRepo: repoNAs,
 		CustomerRepo:    repoCust,
 		ServiceNasi:     serviceNas,
+		LogSerrvice:     lg,
+		LogRepository:   lgRp,
 	}
 }
 
@@ -59,4 +65,12 @@ func (g *GlobalHandlerImpl) RepositoryCustomer() repository.CustomerRepository {
 
 func (g *GlobalHandlerImpl) RepositoryNas() repository.NasionalityRepository {
 	return g.NasionalityRepo
+}
+
+func (g *GlobalHandlerImpl) LogService() service.RequestLogService {
+	return g.LogSerrvice
+}
+
+func (g *GlobalHandlerImpl) LogRepositorys() repository.RequestLogRepository {
+	return g.LogRepository
 }

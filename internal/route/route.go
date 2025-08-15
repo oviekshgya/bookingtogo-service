@@ -34,8 +34,12 @@ func CustomerRouter(r *mux.Router, c handler.CustomerHandler) {
 	r.HandleFunc("/{id}", c.DeleteCustomer).Methods(http.MethodDelete)
 }
 
+func LogRouter(r *mux.Router, c handler.RequestLogHandler) {
+	r.HandleFunc("", c.ListAllLogs).Methods(http.MethodGet)
+}
+
 func NasionalityRouter(r *mux.Router, c handler.NasionalityHandler) {
-	
+
 	log := middleware.Log(GlobalCfg.GetConnectionDB())
 	r.Use(log)
 	cache := middleware.Cache(GlobalCfg.GetConnectionRedis())
@@ -46,7 +50,7 @@ func NasionalityRouter(r *mux.Router, c handler.NasionalityHandler) {
 var GlobalCfg handler.GlobalConfig
 
 func init() {
-	GlobalCfg, _ = src.InitializeGlobalConfig()
+	GlobalCfg, _ = src.InitializeGlobalConfigs()
 }
 
 func AppRoutes(r *mux.Router) {
@@ -64,6 +68,8 @@ func AppRoutes(r *mux.Router) {
 	CustomerRouter(r.PathPrefix("/customer").Subrouter(), handler.NewCustomerHandler(GlobalCfg))
 
 	NasionalityRouter(r.PathPrefix("/nasionality").Subrouter(), handler.NewNasionalityHandler(GlobalCfg))
+
+	LogRouter(r.PathPrefix("/log").Subrouter(), handler.NewRequestLogHandler(GlobalCfg))
 
 	fmt.Println("Server running on :" + viper.GetString("SERVICE_PORT"))
 }

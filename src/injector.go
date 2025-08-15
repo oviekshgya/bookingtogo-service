@@ -10,7 +10,7 @@ import (
 	"github.com/google/wire"
 )
 
-func InitializeGlobalConfigs() (handler.GlobalConfig, error) {
+func InitializeGlobalConfig() (handler.GlobalConfig, error) {
 	wire.Build(
 		rds.NewRedisClient,
 		db.GetDB,
@@ -19,6 +19,8 @@ func InitializeGlobalConfigs() (handler.GlobalConfig, error) {
 		service.NewNasionalityService,
 		handler.NewGlobalHandler,
 		repository.NewNasionalityRepository,
+		service.NewRequestLogService,
+		repository.NewRequestLogRepository,
 	)
 	return nil, nil
 }
