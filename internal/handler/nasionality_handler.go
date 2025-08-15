@@ -3,6 +3,7 @@ package handler
 import (
 	"any/bookingtogo-service/internal/service"
 	"any/bookingtogo-service/src/pkg"
+	"any/bookingtogo-service/src/redis"
 	"net/http"
 	"strconv"
 
@@ -11,6 +12,7 @@ import (
 
 type NasionalityHandlerImpl struct {
 	service service.NasionalityService
+	Redis   *redis.RedisClient
 }
 
 type NasionalityHandler interface {
@@ -18,8 +20,8 @@ type NasionalityHandler interface {
 	GetAllNasionalities(w http.ResponseWriter, r *http.Request)
 }
 
-func NewNasionalityHandler(service service.NasionalityService) NasionalityHandler {
-	return &NasionalityHandlerImpl{service: service}
+func NewNasionalityHandler(service service.NasionalityService, rds *redis.RedisClient) NasionalityHandler {
+	return &NasionalityHandlerImpl{service: service, Redis: rds}
 }
 
 // GET BY ID
@@ -47,9 +49,9 @@ func (h *NasionalityHandlerImpl) GetNasionalityByID(w http.ResponseWriter, r *ht
 	_ = res.Reply(http.StatusOK, "00", "04", "success", result)
 }
 
-// GET ALL
 func (h *NasionalityHandlerImpl) GetAllNasionalities(w http.ResponseWriter, r *http.Request) {
 	res := pkg.PlugResponse(w)
+
 	result, err := h.service.GetAll()
 	if err != nil {
 		_ = res.ReplyCustom(http.StatusBadRequest, map[string]interface{}{
@@ -58,5 +60,7 @@ func (h *NasionalityHandlerImpl) GetAllNasionalities(w http.ResponseWriter, r *h
 		})
 		return
 	}
+
 	_ = res.Reply(http.StatusOK, "00", "05", "success", result)
+	return
 }

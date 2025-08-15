@@ -3,6 +3,7 @@ package route
 import (
 	"any/bookingtogo-service/internal/handler"
 	"any/bookingtogo-service/src"
+	"any/bookingtogo-service/src/middleware"
 	"any/bookingtogo-service/src/pkg"
 	"fmt"
 	"net/http"
@@ -33,8 +34,11 @@ func CustomerRouter(r *mux.Router, c handler.CustomerHandler) {
 }
 
 func NasionalityRouter(r *mux.Router, c handler.NasionalityHandler) {
-	r.HandleFunc("/{id}", c.GetNasionalityByID).Methods(http.MethodGet)
-	r.HandleFunc("/", c.GetAllNasionalities).Methods(http.MethodGet)
+	cache := middleware.Cache(c.(*handler.NasionalityHandlerImpl).Redis)
+	r.Handle("/{id}", cache(http.HandlerFunc(c.GetNasionalityByID))).Methods(http.MethodGet)
+	r.Handle("/", cache(http.HandlerFunc(c.GetAllNasionalities))).Methods(http.MethodGet)
+	//r.HandleFunc("/{id}", c.GetNasionalityByID).Methods(http.MethodGet)
+	//r.HandleFunc("/", c.GetAllNasionalities).Methods(http.MethodGet)
 }
 
 func AppRoutes(r *mux.Router) {
@@ -48,7 +52,7 @@ func AppRoutes(r *mux.Router) {
 			"message": "invalid request",
 		})
 	}).Methods(http.MethodGet)
-	//
+
 	customer, _ := src.InitializeCustomerController()
 	CustomerRouter(r.PathPrefix("/customer").Subrouter(), customer)
 

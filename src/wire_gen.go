@@ -21,7 +21,7 @@ func InitializeNasionalityController() (handler.NasionalityHandler, error) {
 	redisClient := redis.NewRedisClient()
 	nasionalityRepository := repository.NewNasionalityRepository()
 	nasionalityService := service.NewNasionalityService(gormDB, redisClient, nasionalityRepository)
-	nasionalityHandler := handler.NewNasionalityHandler(nasionalityService)
+	nasionalityHandler := handler.NewNasionalityHandler(nasionalityService, redisClient)
 	return nasionalityHandler, nil
 }
 
