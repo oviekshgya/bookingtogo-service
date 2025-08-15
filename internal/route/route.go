@@ -26,15 +26,16 @@ func corsMiddleware(next http.Handler) http.Handler {
 }
 
 func CustomerRouter(r *mux.Router, c handler.CustomerHandler) {
-	r.HandleFunc("/", c.CreateCustomer).Methods(http.MethodPost)
-	r.HandleFunc("/", c.UpdateCustomer).Methods(http.MethodPut)
+	r.HandleFunc("", c.CreateCustomer).Methods(http.MethodPost)
+	r.HandleFunc("", c.UpdateCustomer).Methods(http.MethodPut)
 	r.HandleFunc("/{id}", c.GetCustomerByID).Methods(http.MethodGet)
-	r.HandleFunc("/", c.ListCustomersByNationality).Methods(http.MethodGet)
+	r.HandleFunc("/nasionality", c.ListCustomersByNationality).Methods(http.MethodGet)
+	r.HandleFunc("", c.ListAllCustomers).Methods(http.MethodGet)
 	r.HandleFunc("/{id}", c.DeleteCustomer).Methods(http.MethodDelete)
 }
 
 func NasionalityRouter(r *mux.Router, c handler.NasionalityHandler) {
-	//Gunakan logging disini amibl db nya dari handler
+	
 	log := middleware.Log(GlobalCfg.GetConnectionDB())
 	r.Use(log)
 	cache := middleware.Cache(GlobalCfg.GetConnectionRedis())

@@ -24,6 +24,7 @@ type CustomerHandler interface {
 	DeleteCustomer(w http.ResponseWriter, r *http.Request)
 	GetCustomerByID(w http.ResponseWriter, r *http.Request)
 	ListCustomersByNationality(w http.ResponseWriter, r *http.Request)
+	ListAllCustomers(w http.ResponseWriter, r *http.Request)
 }
 
 func NewCustomerHandler(cfg GlobalConfig) CustomerHandler {
@@ -154,4 +155,39 @@ func (c *CustomerHandlerImpl) ListCustomersByNationality(w http.ResponseWriter, 
 		return
 	}
 	_ = res.Reply(http.StatusOK, "00", "05", "success", result)
+}
+
+func (h *CustomerHandlerImpl) ListAllCustomers(w http.ResponseWriter, r *http.Request) {
+	res := pkg.PlugResponse(w)
+
+	// Ambil query param page dan size
+	pageStr := r.URL.Query().Get("page")
+	sizeStr := r.URL.Query().Get("size")
+
+	// Set default jika tidak ada query param
+	page := 1
+	pageSize := 10
+
+	if pageStr != "" {
+		if p, err := strconv.Atoi(pageStr); err == nil && p > 0 {
+			page = p
+		}
+	}
+	if sizeStr != "" {
+		if s, err := strconv.Atoi(sizeStr); err == nil && s > 0 {
+			pageSize = s
+		}
+	}
+
+	// Panggil service
+	data, err := h.service.ListAll(page, pageSize)
+	if err != nil {
+		_ = res.ReplyCustom(http.StatusInternalServerError, map[string]interface{}{
+			"status":  "error",
+			"message": err.Error(),
+		})
+		return
+	}
+
+	_ = res.Reply(http.StatusOK, "00", "001", "ok", data)
 }

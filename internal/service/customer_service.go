@@ -21,6 +21,7 @@ type CustomerService interface {
 	Delete(id uint) error
 	GetById(id uint) (*domain.Customer, error)
 	ListByNationalityID(nationalityID uint) ([]domain.Customer, error)
+	ListAll(page int, pageSize int) (*repository.PaginatedCustomers, error) // <-- baru
 }
 
 func NewCustomerService(db *gorm.DB, redis *redis.RedisClient, repo repository.CustomerRepository) CustomerService {
@@ -87,4 +88,14 @@ func (s *CustomerServiceImpl) ListByNationalityID(nationalityID uint) ([]domain.
 		return nil, err
 	}
 	return result.([]domain.Customer), nil
+}
+
+func (s *CustomerServiceImpl) ListAll(page int, pageSize int) (*repository.PaginatedCustomers, error) {
+	result, err := pkg.WithTransaction(s.DB, func(tx *gorm.DB) (interface{}, error) {
+		return s.CustomerRepo.ListAllCustomers(tx, page, pageSize)
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(*repository.PaginatedCustomers), nil
 }

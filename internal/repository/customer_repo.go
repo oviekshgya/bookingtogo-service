@@ -14,6 +14,7 @@ type CustomerRepository interface {
 	DeleteCustomer(tx *gorm.DB, customerID uint) error
 	GetCustomerByID(tx *gorm.DB, customerID uint) (*domain.Customer, error)
 	ListCustomersByNationalityID(tx *gorm.DB, nationalityID uint) ([]domain.Customer, error)
+	ListAllCustomers(tx *gorm.DB, page int, pageSize int) (*PaginatedCustomers, error)
 }
 type CustomerRepositoryImpl struct {
 }
@@ -63,4 +64,46 @@ func (r *CustomerRepositoryImpl) ListCustomersByNationalityID(tx *gorm.DB, natio
 		Order("cat_name asc").
 		Find(&customers).Error
 	return customers, err
+}
+
+type PaginatedCustomers struct {
+	Customers []domain.Customer `json:"customers"`
+	TotalData int64             `json:"total_data"`
+	PageSize  int               `json:"page_size"`
+	TotalPage int               `json:"total_page"`
+	Page      int               `json:"page"`
+}
+
+// ListAllCustomers ambil semua customer dengan pagination
+func (r *CustomerRepositoryImpl) ListAllCustomers(tx *gorm.DB, page int, pageSize int) (*PaginatedCustomers, error) {
+	var customers []domain.Customer
+	var totalData int64
+
+	// Hitung total data
+	if err := tx.Model(&domain.Customer{}).Count(&totalData).Error; err != nil {
+		return nil, err
+	}
+
+	// Hitung offset
+	offset := (page - 1) * pageSize
+
+	err := tx.Preload("FamilyList").Preload("Nationality").
+		Order("cat_name asc").
+		Limit(pageSize).
+		Offset(offset).
+		Find(&customers).Error
+	if err != nil {
+		return nil, err
+	}
+
+	// Hitung total page
+	totalPage := int((totalData + int64(pageSize) - 1) / int64(pageSize)) // ceil division
+
+	return &PaginatedCustomers{
+		Customers: customers,
+		TotalData: totalData,
+		PageSize:  pageSize,
+		TotalPage: totalPage,
+		Page:      page,
+	}, nil
 }
